@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_heading %}Dashboard{% endblock %}
+{% block content %}
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="kpi-card kpi-navy"><div class="kpi-label">Total Products</div><div class="kpi-value">{{ total_products }}</div></div></div>
+  <div class="col-md-3"><div class="kpi-card kpi-teal"><div class="kpi-label">Available Stock</div><div class="kpi-value">{{ total_available|floatformat:0 }}</div></div></div>
+  <div class="col-md-3"><div class="kpi-card kpi-amber"><div class="kpi-label">Low Stock Items</div><div class="kpi-value">{{ low_stock|length }}</div></div></div>
+  <div class="col-md-3"><div class="kpi-card kpi-danger"><div class="kpi-label">Out of Stock</div><div class="kpi-value">{{ out_of_stock|length }}</div></div></div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="wh-card p-3 text-center"><div class="fs-4 fw-bold">{{ received_today|floatformat:0 }}</div><div class="small text-muted">Received Today</div></div></div>
+  <div class="col-md-3"><div class="wh-card p-3 text-center"><div class="fs-4 fw-bold">{{ released_today|floatformat:0 }}</div><div class="small text-muted">Released Today</div></div></div>
+  <div class="col-md-3"><div class="wh-card p-3 text-center"><div class="fs-4 fw-bold">{{ pending_requests }}</div><div class="small text-muted">Pending Requests</div></div></div>
+  <div class="col-md-3"><div class="wh-card p-3 text-center"><div class="fs-4 fw-bold">{{ pending_transfers }}</div><div class="small text-muted">Pending Transfers</div></div></div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-lg-8">
+    <div class="wh-card p-3">
+      <div class="fw-semibold mb-2">Stock Movement — Last 7 Days</div>
+      <canvas id="movementChart" height="90"></canvas>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="wh-card p-3">
+      <div class="fw-semibold mb-2">Stock by Category</div>
+      <canvas id="categoryChart" height="90"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="wh-card p-0">
+      <div class="p-3 border-bottom fw-semibold">Low Stock / Out of Stock</div>
+      <table class="table mb-0 small align-middle">
+        <tbody>
+        {% for p in low_stock %}<tr><td>{{ p.name }}</td><td class="text-end"><span class="badge badge-soft-warning">{{ p.total_stock }} left</span></td></tr>{% endfor %}
+        {% for p in out_of_stock %}<tr><td>{{ p.name }}</td><td class="text-end"><span class="badge badge-soft-danger">Out of stock</span></td></tr>{% endfor %}
+        {% if not low_stock and not out_of_stock %}<tr><td class="text-muted text-center py-3">All stock levels healthy.</td></tr>{% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="wh-card p-0">
+      <div class="p-3 border-bottom fw-semibold">Recent Activity</div>
+      <table class="table mb-0 small align-middle">
+        <tbody>
+        {% for t in recent_transactions %}
+        <tr><td>{{ t.get_transaction_type_display }}</td><td>{{ t.product.sku }}</td><td>{{ t.quantity }}</td><td class="text-muted">{{ t.created_at|timesince }} ago</td></tr>
+        {% empty %}<tr><td class="text-muted text-center py-3">No activity yet.</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script>
+new Chart(document.getElementById('movementChart'), {
+  type: 'line',
+  data: {
+    labels: {{ chart_labels|safe }},
+    datasets: [
+      {label: 'Received', data: {{ chart_received|safe }}, borderColor:'#0D9488', backgroundColor:'rgba(13,148,136,.15)', tension:.35, fill:true},
+      {label: 'Released', data: {{ chart_released|safe }}, borderColor:'#F59E0B', backgroundColor:'rgba(245,158,11,.15)', tension:.35, fill:true}
+    ]
+  },
+  options: {plugins:{legend:{position:'bottom'}}, scales:{y:{beginAtZero:true}}}
+});
+new Chart(document.getElementById('categoryChart'), {
+  type: 'doughnut',
+  data: {
+    labels: [{% for c in top_categories %}"{{ c.product__category__name|default:'Uncategorized' }}",{% endfor %}],
+    datasets: [{data:[{% for c in top_categories %}{{ c.total|default:0 }},{% endfor %}], backgroundColor:['#0F2A4A','#0D9488','#F59E0B','#1E3A5F','#16A34A','#DC2626']}]
+  },
+  options: {plugins:{legend:{position:'bottom', labels:{boxWidth:10}}}}
+});
+</script>
+{% endblock %}

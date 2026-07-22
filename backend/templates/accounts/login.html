@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Sign In{% endblock %}
+{% block guest_content %}
+<div class="login-page">
+  <div class="login-card">
+    <div class="text-center mb-4">
+      <div class="mb-2" style="font-size:2.2rem; color:var(--wh-teal);"><i class="fa-solid fa-qrcode"></i></div>
+      <h5 class="fw-bold mb-0" style="color:var(--wh-navy);">QR Warehouse System</h5>
+      <div class="text-muted small">Inventory & Stock Movement Monitoring</div>
+    </div>
+    {% if form.errors %}<div class="alert alert-danger py-2 small">Invalid username or password.</div>{% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label small fw-semibold">Username</label>
+        {{ form.username }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label small fw-semibold">Password</label>
+        {{ form.password }}
+      </div>
+      <button type="submit" class="btn btn-primary w-100 fw-semibold">Sign In</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load core_extras %}
+{% block title %}Assets{% endblock %}
+{% block page_heading %}Individual Assets{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5 class="mb-0">Individual Assets</h5>
+  {% if not user.is_read_only %}<a href="{% url 'core:asset_add' %}" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i> Add Asset</a>{% endif %}
+</div>
+<form class="mb-3 d-flex gap-2" method="get">
+  <input type="text" name="q" value="{{ request.GET.q }}" class="form-control form-control-sm" style="max-width:260px" placeholder="Search code/serial/name">
+  <button class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-search"></i></button>
+</form>
+<div class="wh-card p-0">
+<table class="table table-hover mb-0 align-middle">
+<thead><tr><th>Asset Code</th><th>Product</th><th>Serial</th><th>Location</th><th>Condition</th><th>Status</th><th>Assigned To</th><th class="text-end">Actions</th></tr></thead>
+<tbody>
+{% for a in assets %}
+<tr>
+  <td><a href="{% url 'core:asset_detail' a.pk %}">{{ a.asset_code }}</a></td>
+  <td>{{ a.product }}</td>
+  <td>{{ a.serial_number|default:"—" }}</td>
+  <td>{{ a.location }}</td>
+  <td><span class="badge badge-soft-{{ a.condition|status_badge }}">{{ a.get_condition_display }}</span></td>
+  <td><span class="badge badge-soft-info">{{ a.get_status_display }}</span></td>
+  <td>{{ a.assigned_to|default:"—" }}</td>
+  <td class="text-end">
+    <a href="{% url 'core:asset_detail' a.pk %}" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-eye"></i></a>
+    {% if not user.is_read_only %}<a href="{% url 'core:asset_edit' a.pk %}" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-pen"></i></a>{% endif %}
+  </td>
+</tr>
+{% empty %}<tr><td colspan="8" class="text-center text-muted py-4">No assets yet.</td></tr>{% endfor %}
+</tbody>
+</table>
+</div>
+{% include "core/_pagination.html" %}
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load core_extras %}
+{% block title %}{{ req.reference_number }}{% endblock %}
+{% block page_heading %}Request Detail{% endblock %}
+{% block content %}
+<div class="wh-card p-4 mb-4">
+  <div class="d-flex justify-content-between align-items-start">
+    <div>
+      <h5>{{ req.reference_number }} <span class="badge badge-soft-{{ req.status|status_badge }}">{{ req.get_status_display }}</span></h5>
+      <div class="text-muted small">Department: {{ req.department }} &middot; Requested by {{ req.requested_by }} on {{ req.created_at|date:"M d, Y H:i" }}</div>
+      {% if req.purpose %}<div class="text-muted small">Purpose: {{ req.purpose }}</div>{% endif %}
+    </div>
+    <div class="d-flex gap-2">
+      {% if req.status == 'pending' and user.can_approve %}
+      <form method="post" action="{% url 'operations:request_review' req.pk 'approve' %}">{% csrf_token %}<button class="btn btn-sm btn-success">Approve</button></form>
+      <form method="post" action="{% url 'operations:request_review' req.pk 'reject' %}">{% csrf_token %}<button class="btn btn-sm btn-outline-danger">Reject</button></form>
+      {% endif %}
+      {% if req.status == 'approved' and not user.is_read_only %}
+      <a href="{% url 'operations:release_from_request' req.pk %}" class="btn btn-sm btn-primary">Release Items</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<div class="wh-card p-0">
+<table class="table mb-0 align-middle">
+<thead><tr><th>Product</th><th>Requested</th><th>Released</th></tr></thead>
+<tbody>
+{% for i in req.items.all %}
+<tr><td>{{ i.product }}</td><td>{{ i.quantity_requested }}</td><td>{{ i.quantity_released }}</td></tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% endblock %}

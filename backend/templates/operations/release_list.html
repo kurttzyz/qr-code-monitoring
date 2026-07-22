@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load core_extras %}
+{% block title %}Stock Releases{% endblock %}
+{% block page_heading %}Stock Releases{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5 class="mb-0">Stock Releases</h5>
+  {% if not user.is_read_only %}<a href="{% url 'operations:release_add' %}" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i> New Release</a>{% endif %}
+</div>
+<div class="wh-card p-0">
+<table class="table table-hover mb-0 align-middle">
+<thead><tr><th>Reference</th><th>Department</th><th>Recipient</th><th>Location</th><th>Status</th><th>Date</th></tr></thead>
+<tbody>
+{% for r in releases %}
+<tr style="cursor:pointer" onclick="location.href='{% url 'operations:release_detail' r.pk %}'">
+  <td>{{ r.reference_number }}</td><td>{{ r.released_to_department }}</td><td>{{ r.recipient_name }}</td><td>{{ r.location }}</td>
+  <td><span class="badge badge-soft-{{ r.status|status_badge }}">{{ r.get_status_display }}</span></td>
+  <td>{{ r.created_at|date:"M d, Y" }}</td>
+</tr>
+{% empty %}<tr><td colspan="6" class="text-center text-muted py-4">No releases yet.</td></tr>{% endfor %}
+</tbody>
+</table>
+</div>
+{% include "core/_pagination.html" %}
+{% endblock %}

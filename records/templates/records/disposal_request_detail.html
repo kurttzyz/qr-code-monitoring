@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}{{ disposal_request.reference_no }}{% endblock %}
+{% block page_heading %}Disposal Request Detail{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h4 class="fw-bold mb-1">{{ disposal_request.reference_no }}</h4>
+    {% if disposal_request.status == "approved" %}
+      <span class="badge badge-soft-success">{{ disposal_request.get_status_display }}</span>
+    {% elif disposal_request.status == "rejected" %}
+      <span class="badge badge-soft-danger">{{ disposal_request.get_status_display }}</span>
+    {% elif disposal_request.status == "submitted" %}
+      <span class="badge badge-soft-info">{{ disposal_request.get_status_display }}</span>
+    {% else %}
+      <span class="badge badge-soft-secondary">{{ disposal_request.get_status_display }}</span>
+    {% endif %}
+  </div>
+  <a href="{% url 'records:disposal_request_list' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="fa-solid fa-arrow-left me-1"></i> Back to list
+  </a>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <table class="table table-borderless table-sm mb-0">
+      <tr><th class="text-muted" style="width:220px;">Request Date</th><td>{{ disposal_request.request_date }}</td></tr>
+      <tr><th class="text-muted">Agency</th><td>{{ disposal_request.agency_name }}</td></tr>
+      <tr><th class="text-muted">Branch</th><td>{{ disposal_request.branch_name|default:"—" }}</td></tr>
+      <tr><th class="text-muted">Address</th><td>{{ disposal_request.address|default:"—" }}</td></tr>
+      <tr><th class="text-muted">Telephone</th><td>{{ disposal_request.telephone_number|default:"—" }}</td></tr>
+      <tr><th class="text-muted">Email</th><td>{{ disposal_request.email_address|default:"—" }}</td></tr>
+      <tr><th class="text-muted">Location of Records</th><td>{{ disposal_request.location_of_records|default:"—" }}</td></tr>
+      <tr><th class="text-muted">Volume (Boxes)</th><td>{{ disposal_request.volume_boxes|default:"—" }}</td></tr>
+      <tr><th class="text-muted">Prepared By</th><td>{{ disposal_request.prepared_by|default:"—" }} ({{ disposal_request.prepared_by_position|default:"—" }})</td></tr>
+      <tr><th class="text-muted">Noted By</th><td>{{ disposal_request.noted_by|default:"—" }}</td></tr>
+      <tr><th class="text-muted">Remarks</th><td>{{ disposal_request.remarks|default:"—" }}</td></tr>
+    </table>
+  </div>
+</div>
+
+<h6 class="fw-bold mb-2">Batches covered ({{ batches|length }})</h6>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr class="text-uppercase small text-muted">
+          <th>Batch No</th><th>GRDS Item</th><th>Section</th><th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for batch in batches %}
+        <tr>
+          <td><a href="{% url 'records:archive_batch_detail' batch.pk %}" class="fw-semibold text-decoration-none">{{ batch.batch_no }}</a></td>
+          <td>{{ batch.grds_item|default:batch.grds_item_no_raw }}</td>
+          <td>{{ batch.section|default:"—" }}</td>
+          <td>{{ batch.batch_date }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="text-center text-muted py-4">No batches attached yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

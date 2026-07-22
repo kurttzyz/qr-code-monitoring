@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load core_extras %}
+{% block title %}{{ report.reference_number }}{% endblock %}
+{% block page_heading %}Damage Report{% endblock %}
+{% block content %}
+<div class="wh-card p-4">
+  <div class="d-flex justify-content-between align-items-start">
+    <div>
+      <h5>{{ report.reference_number }} <span class="badge badge-soft-{{ report.status|status_badge }}">{{ report.get_status_display }}</span></h5>
+      <div class="text-muted small">{{ report.product }} &middot; {{ report.location }} &middot; Qty: {{ report.quantity }}</div>
+      <div class="text-muted small">Reported by {{ report.reported_by }} on {{ report.created_at|date:"M d, Y H:i" }}</div>
+      <p class="mt-2">{{ report.reason }}</p>
+      {% if report.photo %}<img src="{{ report.photo.url }}" class="img-fluid rounded mt-2" style="max-width:320px">{% endif %}
+    </div>
+    {% if report.status == 'reported' and user.can_approve %}
+    <form method="post" action="{% url 'operations:damage_approve' report.pk %}">{% csrf_token %}<button class="btn btn-sm btn-success">Approve & Deduct Stock</button></form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

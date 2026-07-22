@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load core_extras %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_heading %}{{ title }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5 class="mb-0">{{ title }}</h5>
+  {% if not user.is_read_only %}
+  <a href="{% url add_url %}" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i> Add</a>
+  {% endif %}
+</div>
+<form class="mb-3" method="get">
+  <input type="text" name="q" value="{{ request.GET.q }}" class="form-control form-control-sm w-auto d-inline-block" placeholder="Search...">
+  <button class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-search"></i></button>
+</form>
+<div class="wh-card p-0">
+<table class="table table-hover mb-0 align-middle">
+<thead><tr>{% for c in columns %}<th>{{ c|title }}</th>{% endfor %}<th class="text-end">Actions</th></tr></thead>
+<tbody>
+{% for obj in object_list %}
+<tr>
+  {% for c in columns %}
+  <td>
+    {% with val=obj|get_attr:c %}
+      {% if val == True %}<span class="badge badge-soft-success">Active</span>
+      {% elif val == False %}<span class="badge badge-soft-secondary">Inactive</span>
+      {% else %}{{ val|default:"—" }}{% endif %}
+    {% endwith %}
+  </td>
+  {% endfor %}
+  <td class="text-end">
+    {% if not user.is_read_only %}
+    <a href="{% url edit_url obj.pk %}" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-pen"></i></a>
+    {% if user.role == 'admin' %}<a href="{% url delete_url obj.pk %}" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></a>{% endif %}
+    {% endif %}
+  </td>
+</tr>
+{% empty %}
+<tr><td colspan="10" class="text-center text-muted py-4">No records found.</td></tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% include "core/_pagination.html" %}
+{% endblock %}

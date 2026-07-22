@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_heading %}{{ title }}{% endblock %}
+{% block content %}
+<div class="wh-card p-4">
+  <h5 class="mb-3">{{ title }}</h5>
+  <form method="post">
+    {% csrf_token %}
+    <div class="row g-3 mb-4">
+      {% for field in form %}
+      <div class="col-md-4">
+        <label class="form-label small fw-semibold">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}<div class="text-danger small">{{ field.errors|striptags }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <h6>Items to Receive</h6>
+    {{ formset.management_form }}
+    <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead><tr><th>Product</th><th>Batch #</th><th>Expiration</th><th>Location</th><th>Ordered</th><th>Received</th><th>Unit Cost</th><th>Delete</th></tr></thead>
+      <tbody>
+      {% for f in formset %}
+        <tr>
+          {{ f.id }}
+          <td>{{ f.product }}</td><td>{{ f.batch_number }}</td><td>{{ f.expiration_date }}</td>
+          <td>{{ f.location }}</td><td>{{ f.quantity_ordered }}</td><td>{{ f.quantity_received }}</td>
+          <td>{{ f.unit_cost }}</td>
+          <td>{% if f.instance.pk %}{{ f.DELETE }}{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    <button class="btn btn-primary mt-3"><i class="fa-solid fa-check me-1"></i> Save Receiving</button>
+    <a href="{% url 'operations:receiving_list' %}" class="btn btn-outline-secondary mt-3">Cancel</a>
+  </form>
+</div>
+{% endblock %}

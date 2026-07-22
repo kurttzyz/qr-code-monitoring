@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+{% block page_heading %}Notifications{% endblock %}
+{% block content %}
+<div class="wh-card p-0">
+{% for n in notifications %}
+<a href="{% url 'dashboard:notification_read' n.pk %}" class="d-block p-3 border-bottom text-decoration-none {% if not n.is_read %}bg-light{% endif %}">
+  <span class="badge badge-soft-{{ n.level }} me-2">{{ n.get_level_display }}</span>
+  <span class="text-dark">{{ n.message }}</span>
+  <span class="text-muted small float-end">{{ n.created_at|timesince }} ago</span>
+</a>
+{% empty %}<div class="p-4 text-center text-muted">No notifications.</div>{% endfor %}
+</div>
+{% endblock %}

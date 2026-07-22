@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load core_extras %}
+{% block title %}{{ count.reference_number }}{% endblock %}
+{% block page_heading %}Inventory Count{% endblock %}
+{% block content %}
+<div class="wh-card p-4 mb-4">
+  <div class="d-flex justify-content-between align-items-start">
+    <div>
+      <h5>{{ count.reference_number }} <span class="badge badge-soft-{{ count.status|status_badge }}">{{ count.get_status_display }}</span></h5>
+      <div class="text-muted small">{{ count.warehouse }}{% if count.location %} &middot; {{ count.location }}{% endif %}{% if count.category %} &middot; {{ count.category }}{% endif %}</div>
+      <div class="text-muted small">Started by {{ count.created_by }} on {{ count.started_at|date:"M d, Y H:i" }}</div>
+    </div>
+    {% if count.status != 'closed' and user.can_approve %}
+    <form method="post" action="{% url 'operations:count_approve' count.pk %}">{% csrf_token %}<button class="btn btn-sm btn-success">Review & Approve Adjustments</button></form>
+    {% endif %}
+  </div>
+</div>
+<div class="wh-card p-0">
+<table class="table mb-0 align-middle">
+<thead><tr><th>Product</th><th>Location</th><th>Expected</th><th>Counted</th><th>Variance</th><th>Status</th>{% if not user.is_read_only %}<th>Enter Count</th>{% endif %}</tr></thead>
+<tbody>
+{% for i in count.items.all %}
+<tr>
+  <td>{{ i.product }}</td><td>{{ i.location }}</td><td>{{ i.expected_quantity }}</td>
+  <td>{{ i.counted_quantity|default:"—" }}</td>
+  <td>{% if i.variance != None %}<span class="{% if i.variance != 0 %}text-danger fw-semibold{% endif %}">{{ i.variance }}</span>{% else %}—{% endif %}</td>
+  <td><span class="badge badge-soft-{{ i.status|status_badge }}">{{ i.get_status_display }}</span></td>
+  {% if not user.is_read_only %}
+  <td>
+    <form method="post" action="{% url 'operations:count_entry' count.pk i.pk %}" class="d-flex gap-1">
+      {% csrf_token %}
+      <input type="number" step="0.01" name="counted_quantity" class="form-control form-control-sm" style="width:100px" value="{{ i.counted_quantity|default_if_none:'' }}">
+      <button class="btn btn-sm btn-outline-primary">Save</button>
+    </form>
+  </td>
+  {% endif %}
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% endblock %}

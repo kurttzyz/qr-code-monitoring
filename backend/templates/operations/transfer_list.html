@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load core_extras %}
+{% block title %}Stock Transfers{% endblock %}
+{% block page_heading %}Stock Transfers{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5 class="mb-0">Stock Transfers</h5>
+  {% if not user.is_read_only %}<a href="{% url 'operations:transfer_add' %}" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i> New Transfer</a>{% endif %}
+</div>
+<div class="wh-card p-0">
+<table class="table table-hover mb-0 align-middle">
+<thead><tr><th>Reference</th><th>Source</th><th>Destination</th><th>Status</th><th>Requested By</th><th>Date</th></tr></thead>
+<tbody>
+{% for t in transfers %}
+<tr style="cursor:pointer" onclick="location.href='{% url 'operations:transfer_detail' t.pk %}'">
+  <td>{{ t.reference_number }}</td><td>{{ t.source_location }}</td><td>{{ t.destination_location }}</td>
+  <td><span class="badge badge-soft-{{ t.status|status_badge }}">{{ t.get_status_display }}</span></td>
+  <td>{{ t.requested_by }}</td><td>{{ t.created_at|date:"M d, Y" }}</td>
+</tr>
+{% empty %}<tr><td colspan="6" class="text-center text-muted py-4">No transfers yet.</td></tr>{% endfor %}
+</tbody>
+</table>
+</div>
+{% include "core/_pagination.html" %}
+{% endblock %}

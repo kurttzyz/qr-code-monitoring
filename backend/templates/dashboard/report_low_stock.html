@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Low Stock Report{% endblock %}
+{% block page_heading %}Low Stock Report{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-end mb-3"><a href="?export=csv" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-file-csv me-1"></i> Export CSV</a></div>
+<div class="wh-card p-0">
+<table class="table table-hover mb-0 align-middle small">
+<thead><tr><th>SKU</th><th>Product</th><th>Total Stock</th><th>Reorder Level</th></tr></thead>
+<tbody>
+{% for p in products %}
+<tr><td>{{ p.sku }}</td><td>{{ p.name }}</td><td>{% if p.is_out_of_stock %}<span class="badge badge-soft-danger">{{ p.total_stock }}</span>{% else %}<span class="badge badge-soft-warning">{{ p.total_stock }}</span>{% endif %}</td><td>{{ p.reorder_level }}</td></tr>
+{% empty %}<tr><td colspan="4" class="text-center text-muted py-4">No low stock items. Everything looks healthy.</td></tr>{% endfor %}
+</tbody>
+</table>
+</div>
+{% endblock %}

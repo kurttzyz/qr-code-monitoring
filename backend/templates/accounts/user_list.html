@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Users{% endblock %}
+{% block page_heading %}Users & Roles{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5 class="mb-0">Users & Roles</h5>
+  <a href="{% url 'accounts:user_create' %}" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i> Add User</a>
+</div>
+<div class="wh-card p-0">
+<table class="table table-hover mb-0 align-middle">
+<thead><tr><th>Username</th><th>Name</th><th>Role</th><th>Department</th><th>Status</th><th></th></tr></thead>
+<tbody>
+{% for u in users %}
+<tr>
+  <td>{{ u.username }}</td>
+  <td>{{ u.get_full_name }}</td>
+  <td><span class="badge badge-soft-info">{{ u.get_role_display }}</span></td>
+  <td>{{ u.department|default:"—" }}</td>
+  <td>{% if u.is_active_employee %}<span class="badge badge-soft-success">Active</span>{% else %}<span class="badge badge-soft-secondary">Inactive</span>{% endif %}</td>
+  <td class="text-end"><a href="{% url 'accounts:user_edit' u.pk %}" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-pen"></i></a></td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% endblock %}

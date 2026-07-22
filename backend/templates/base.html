@@ -1,0 +1,114 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Warehouse Inventory{% endblock %} | QR Warehouse System</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+{% if user.is_authenticated %}
+<nav class="wh-sidebar" id="whSidebar">
+  <div class="brand"><span class="badge-dot"></span> QR WAREHOUSE</div>
+
+  <div class="nav-section">Overview</div>
+  <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'dashboard:home' %}"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+  <a class="nav-link {% if 'scanner' in request.path %}active{% endif %}" href="{% url 'core:scanner' %}"><i class="fa-solid fa-qrcode"></i> Scan QR</a>
+
+  <div class="nav-section">Operations</div>
+  <a class="nav-link {% if '/ops/receiving' in request.path %}active{% endif %}" href="{% url 'operations:receiving_list' %}"><i class="fa-solid fa-truck-ramp-box"></i> Receiving</a>
+  <a class="nav-link {% if '/ops/transfers' in request.path %}active{% endif %}" href="{% url 'operations:transfer_list' %}"><i class="fa-solid fa-right-left"></i> Stock Transfers</a>
+  <a class="nav-link {% if '/ops/requests' in request.path %}active{% endif %}" href="{% url 'operations:request_list' %}"><i class="fa-solid fa-clipboard-list"></i> Item Requests</a>
+  <a class="nav-link {% if '/ops/releases' in request.path %}active{% endif %}" href="{% url 'operations:release_list' %}"><i class="fa-solid fa-dolly"></i> Stock Releases</a>
+  <a class="nav-link {% if '/ops/returns' in request.path %}active{% endif %}" href="{% url 'operations:return_list' %}"><i class="fa-solid fa-rotate-left"></i> Returns</a>
+  <a class="nav-link {% if '/ops/counts' in request.path %}active{% endif %}" href="{% url 'operations:count_list' %}"><i class="fa-solid fa-clipboard-check"></i> Inventory Count</a>
+  <a class="nav-link {% if '/ops/damage' in request.path %}active{% endif %}" href="{% url 'operations:damage_list' %}"><i class="fa-solid fa-triangle-exclamation"></i> Damage</a>
+  <a class="nav-link {% if '/ops/disposals' in request.path %}active{% endif %}" href="{% url 'operations:disposal_list' %}"><i class="fa-solid fa-trash"></i> Disposal</a>
+
+  <div class="nav-section">Catalog</div>
+  <a class="nav-link {% if '/inventory/products' in request.path %}active{% endif %}" href="{% url 'core:product_list' %}"><i class="fa-solid fa-box"></i> Products</a>
+  <a class="nav-link {% if '/inventory/batches' in request.path %}active{% endif %}" href="{% url 'core:batch_list' %}"><i class="fa-solid fa-layer-group"></i> Batches</a>
+  <a class="nav-link {% if '/inventory/assets' in request.path %}active{% endif %}" href="{% url 'core:asset_list' %}"><i class="fa-solid fa-laptop"></i> Assets</a>
+  <a class="nav-link {% if '/inventory/locations' in request.path %}active{% endif %}" href="{% url 'core:location_list' %}"><i class="fa-solid fa-warehouse"></i> Locations</a>
+  <a class="nav-link {% if '/inventory/warehouses' in request.path %}active{% endif %}" href="{% url 'core:warehouse_list' %}"><i class="fa-solid fa-building"></i> Warehouses</a>
+  <a class="nav-link {% if '/inventory/categories' in request.path %}active{% endif %}" href="{% url 'core:category_list' %}"><i class="fa-solid fa-tags"></i> Categories</a>
+  <a class="nav-link {% if '/inventory/units' in request.path %}active{% endif %}" href="{% url 'core:unit_list' %}"><i class="fa-solid fa-ruler"></i> Units</a>
+  <a class="nav-link {% if '/inventory/suppliers' in request.path %}active{% endif %}" href="{% url 'core:supplier_list' %}"><i class="fa-solid fa-truck-field"></i> Suppliers</a>
+
+  <div class="nav-section">Records</div>
+  <a class="nav-link {% if '/records/batches' in request.path %}active{% endif %}" href="{% url 'records:archive_batch_list' %}"><i class="fa-solid fa-box-archive"></i> Archive Batches</a>
+  <a class="nav-link {% if '/records/grds-items' in request.path %}active{% endif %}" href="{% url 'records:grds_item_list' %}"><i class="fa-solid fa-book"></i> GRDS Items</a>
+  <a class="nav-link {% if '/records/disposal-requests' in request.path %}active{% endif %}" href="{% url 'records:disposal_request_list' %}"><i class="fa-solid fa-file-signature"></i> Disposal Requests</a>
+
+  <div class="nav-section">Reports</div>
+  <a class="nav-link {% if '/reports' in request.path %}active{% endif %}" href="{% url 'dashboard:reports_home' %}"><i class="fa-solid fa-chart-column"></i> Reports</a>
+  <a class="nav-link {% if 'audit-log' in request.path %}active{% endif %}" href="{% url 'dashboard:audit_log' %}"><i class="fa-solid fa-shield-halved"></i> Audit Log</a>
+
+  {% if user.role == 'admin' %}
+  <div class="nav-section">Administration</div>
+  <a class="nav-link {% if '/accounts/users' in request.path %}active{% endif %}" href="{% url 'accounts:user_list' %}"><i class="fa-solid fa-users-gear"></i> Users & Roles</a>
+  <a class="nav-link" href="/admin/"><i class="fa-solid fa-screwdriver-wrench"></i> Django Admin</a>
+  {% endif %}
+  <div style="height:2rem"></div>
+</nav>
+
+<div class="wh-content">
+  <div class="wh-topbar">
+    <button class="btn btn-sm btn-outline-secondary d-lg-none" onclick="document.getElementById('whSidebar').classList.toggle('show')"><i class="fa-solid fa-bars"></i></button>
+    <div class="fw-semibold text-secondary d-none d-lg-block">{% block page_heading %}{% endblock %}</div>
+    <div class="d-flex align-items-center gap-3">
+      <div class="dropdown">
+        <button class="btn btn-sm btn-light position-relative" data-bs-toggle="dropdown">
+          <i class="fa-solid fa-bell"></i>
+          {% if nav_notifications_count %}<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ nav_notifications_count }}</span>{% endif %}
+        </button>
+        <div class="dropdown-menu dropdown-menu-end p-2" style="width:320px;">
+          {% for n in nav_notifications %}
+          <a class="dropdown-item small border-bottom py-2" href="{% url 'dashboard:notification_read' n.pk %}">
+            <span class="badge badge-soft-{{ n.level }} mb-1">{{ n.get_level_display }}</span><br>{{ n.message }}
+          </a>
+          {% empty %}
+          <div class="text-muted small p-2">No new notifications</div>
+          {% endfor %}
+          <a href="{% url 'dashboard:notifications' %}" class="dropdown-item small text-center text-primary mt-1">View all</a>
+        </div>
+      </div>
+      <div class="dropdown">
+        <button class="btn btn-sm btn-light d-flex align-items-center gap-2" data-bs-toggle="dropdown">
+          <i class="fa-solid fa-circle-user"></i> {{ user.get_full_name|default:user.username }}
+          <span class="badge badge-soft-secondary">{{ user.get_role_display }}</span>
+        </button>
+        <div class="dropdown-menu dropdown-menu-end">
+          <a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="fa-solid fa-user me-2"></i>Profile</a>
+          <a class="dropdown-item" href="{% url 'accounts:logout' %}"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wh-page">
+    {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show py-2" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      {% endfor %}
+    {% endif %}
+    {% block content %}{% endblock %}
+  </div>
+</div>
+{% else %}
+  {% block guest_content %}{% endblock %}
+{% endif %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

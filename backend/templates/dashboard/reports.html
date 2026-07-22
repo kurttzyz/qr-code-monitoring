@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block page_heading %}Reports{% endblock %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-md-4"><a href="{% url 'dashboard:report_stock' %}" class="text-decoration-none"><div class="wh-card p-4"><i class="fa-solid fa-boxes-stacked fa-lg mb-2" style="color:var(--wh-teal)"></i><h6 class="mb-1">Current Stock Report</h6><div class="small text-muted">Stock by product, batch, and location.</div></div></a></div>
+  <div class="col-md-4"><a href="{% url 'dashboard:report_movement' %}" class="text-decoration-none"><div class="wh-card p-4"><i class="fa-solid fa-list-check fa-lg mb-2" style="color:var(--wh-teal)"></i><h6 class="mb-1">Stock Movement Ledger</h6><div class="small text-muted">All receive, release, transfer, damage, and adjustment records.</div></div></a></div>
+  <div class="col-md-4"><a href="{% url 'dashboard:report_low_stock' %}" class="text-decoration-none"><div class="wh-card p-4"><i class="fa-solid fa-triangle-exclamation fa-lg mb-2" style="color:var(--wh-amber)"></i><h6 class="mb-1">Low-Stock / Out-of-Stock</h6><div class="small text-muted">Products at or below reorder level.</div></div></a></div>
+  <div class="col-md-4"><a href="{% url 'dashboard:report_expiration' %}" class="text-decoration-none"><div class="wh-card p-4"><i class="fa-solid fa-calendar-xmark fa-lg mb-2" style="color:var(--wh-danger)"></i><h6 class="mb-1">Expiration Report</h6><div class="small text-muted">Batches nearing or past expiration.</div></div></a></div>
+</div>
+{% endblock %}

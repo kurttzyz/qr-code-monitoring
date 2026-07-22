@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}{{ item.item_no }}{% endblock %}
+{% block page_heading %}GRDS Item Detail{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="fw-bold mb-0">{{ item.item_no }} — {{ item.records_series_title }}</h4>
+  <a href="{% url 'records:grds_item_list' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="fa-solid fa-arrow-left me-1"></i> Back to list
+  </a>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <table class="table table-borderless table-sm mb-0">
+      <tr><th class="text-muted" style="width:220px;">Retention Period</th><td>{{ item.retention_period }}</td></tr>
+      <tr><th class="text-muted">Default Section</th><td>{{ item.default_section|default:"—" }}</td></tr>
+      <tr><th class="text-muted">Commonly Used</th><td>{{ item.is_commonly_used|yesno:"Yes,No" }}</td></tr>
+      <tr><th class="text-muted">Notes</th><td>{{ item.notes|default:"—" }}</td></tr>
+    </table>
+  </div>
+</div>
+
+<h6 class="fw-bold mb-2">Batches using this item ({{ batches|length }})</h6>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr class="text-uppercase small text-muted">
+          <th>Batch No</th><th>Type</th><th>Section</th><th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for batch in batches %}
+        <tr>
+          <td><a href="{% url 'records:archive_batch_detail' batch.pk %}" class="fw-semibold text-decoration-none">{{ batch.batch_no }}</a></td>
+          <td>{{ batch.get_batch_type_display }}</td>
+          <td>{{ batch.section|default:"—" }}</td>
+          <td>{{ batch.batch_date }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="text-center text-muted py-4">No batches yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

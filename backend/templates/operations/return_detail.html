@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load core_extras %}
+{% block title %}{{ ret.reference_number }}{% endblock %}
+{% block page_heading %}Return Detail{% endblock %}
+{% block content %}
+<div class="wh-card p-4 mb-4">
+  <h5>{{ ret.reference_number }} <span class="badge badge-soft-{{ ret.status|status_badge }}">{{ ret.get_status_display }}</span></h5>
+  <div class="text-muted small">Returned by {{ ret.returned_by }} &middot; {{ ret.department|default:"—" }} &middot; Location: {{ ret.location }}</div>
+  {% if ret.reason %}<div class="text-muted small">Reason: {{ ret.reason }}</div>{% endif %}
+</div>
+<div class="wh-card p-0">
+<table class="table mb-0 align-middle">
+<thead><tr><th>Product</th><th>Batch</th><th>Quantity</th><th>Condition</th></tr></thead>
+<tbody>
+{% for i in ret.items.all %}
+<tr><td>{{ i.product }}</td><td>{{ i.batch|default:"—" }}</td><td>{{ i.quantity }}</td>
+<td><span class="badge badge-soft-{{ i.condition|status_badge }}">{{ i.get_condition_display }}</span></td></tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% endblock %}

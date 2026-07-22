@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load core_extras %}
+{% block title %}{{ receiving.reference_number }}{% endblock %}
+{% block page_heading %}Receiving Detail{% endblock %}
+{% block content %}
+<div class="wh-card p-4 mb-4">
+  <div class="d-flex justify-content-between align-items-start">
+    <div>
+      <h5>{{ receiving.reference_number }} <span class="badge badge-soft-{{ receiving.status|status_badge }}">{{ receiving.get_status_display }}</span></h5>
+      <div class="text-muted small">Supplier: {{ receiving.supplier }} &middot; Warehouse: {{ receiving.warehouse }} &middot; PO: {{ receiving.purchase_order|default:"—" }}</div>
+      <div class="text-muted small">Received by {{ receiving.received_by }} on {{ receiving.created_at|date:"M d, Y H:i" }}</div>
+    </div>
+    {% if receiving.status != 'stored' and not user.is_read_only %}
+    <form method="post" action="{% url 'operations:receiving_store' receiving.pk %}">
+      {% csrf_token %}
+      <button class="btn btn-success btn-sm"><i class="fa-solid fa-box-open me-1"></i>Inspect & Store All Items</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+<div class="wh-card p-0">
+<table class="table mb-0 align-middle">
+<thead><tr><th>Product</th><th>Batch</th><th>Location</th><th>Ordered</th><th>Received</th><th>Unit Cost</th><th>Stored?</th></tr></thead>
+<tbody>
+{% for i in receiving.items.all %}
+<tr>
+  <td>{{ i.product }}</td><td>{{ i.batch_number|default:"—" }}</td><td>{{ i.location }}</td>
+  <td>{{ i.quantity_ordered }}</td><td>{{ i.quantity_received }}</td><td>{{ i.unit_cost }}</td>
+  <td>{% if i.is_stored %}<span class="badge badge-soft-success">Stored</span>{% else %}<span class="badge badge-soft-warning">Pending</span>{% endif %}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% endblock %}

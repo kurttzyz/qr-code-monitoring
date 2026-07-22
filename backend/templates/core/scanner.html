@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Scan QR Code{% endblock %}
+{% block page_heading %}Scan QR Code{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="wh-card p-4 text-center">
+      <h5 class="mb-3"><i class="fa-solid fa-qrcode me-2"></i>Scan an Item or Location</h5>
+      <div id="reader" style="width:100%;"></div>
+      <div id="scan-result" class="mt-3"></div>
+      <p class="text-muted small mt-3">Point your camera at a warehouse QR label. Requires camera permission over HTTPS or localhost.</p>
+      <hr>
+      <form onsubmit="event.preventDefault(); goToToken();">
+        <label class="form-label small">Or enter the code manually</label>
+        <div class="input-group">
+          <input type="text" id="manualToken" class="form-control" placeholder="Paste QR token or scan URL">
+          <button class="btn btn-primary">Go</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<script>
+function extractToken(text){
+  const match = text.match(/[0-9a-fA-F-]{36}/);
+  return match ? match[0] : text;
+}
+function goToUrl(decodedText){
+  const token = extractToken(decodedText);
+  window.location.href = "/inventory/scan/" + token + "/";
+}
+function goToToken(){
+  const val = document.getElementById('manualToken').value.trim();
+  if(val) goToUrl(val);
+}
+try {
+  const html5QrCode = new Html5Qrcode("reader");
+  Html5Qrcode.getCameras().then(cameras => {
+    if (cameras && cameras.length) {
+      html5QrCode.start(cameras[0].id, { fps: 10, qrbox: 220 }, goToUrl);
+    } else {
+      document.getElementById('scan-result').innerHTML = '<div class="text-muted small">No camera found. Use manual entry below.</div>';
+    }
+  }).catch(() => {
+    document.getElementById('scan-result').innerHTML = '<div class="text-muted small">Camera unavailable. Use manual entry below.</div>';
+  });
+} catch(e) {}
+</script>
+{% endblock %}

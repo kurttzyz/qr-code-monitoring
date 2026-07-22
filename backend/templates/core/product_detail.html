@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block page_heading %}Product Detail{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="wh-card p-4 mb-4">
+      <div class="d-flex justify-content-between">
+        <div>
+          <h5 class="mb-1">{{ product.name }} <span class="text-muted small">({{ product.sku }})</span></h5>
+          <div class="text-muted small">{{ product.category }} &middot; {{ product.get_tracking_type_display }} &middot; Unit: {{ product.unit }}</div>
+        </div>
+        <a href="{% url 'core:product_edit' product.pk %}" class="btn btn-sm btn-outline-primary align-self-start"><i class="fa-solid fa-pen me-1"></i>Edit</a>
+      </div>
+      <hr>
+      <div class="row text-center">
+        <div class="col"><div class="fs-4 fw-bold">{{ product.total_stock }}</div><div class="small text-muted">Total Stock</div></div>
+        <div class="col"><div class="fs-4 fw-bold">{{ product.reorder_level }}</div><div class="small text-muted">Reorder Level</div></div>
+        <div class="col"><div class="fs-4 fw-bold">{{ product.minimum_stock }}</div><div class="small text-muted">Minimum</div></div>
+        <div class="col"><div class="fs-4 fw-bold">{{ product.maximum_stock }}</div><div class="small text-muted">Maximum</div></div>
+      </div>
+    </div>
+
+    <div class="wh-card p-0 mb-4">
+      <div class="p-3 border-bottom fw-semibold">Stock by Location</div>
+      <table class="table mb-0 align-middle">
+        <thead><tr><th>Location</th><th>Batch</th><th>Quantity</th></tr></thead>
+        <tbody>
+        {% for b in balances %}
+        <tr><td><a href="{% url 'core:location_detail' b.location.pk %}">{{ b.location }}</a></td><td>{{ b.batch|default:"—" }}</td><td>{{ b.quantity }}</td></tr>
+        {% empty %}<tr><td colspan="3" class="text-center text-muted py-3">No stock recorded.</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="wh-card p-0">
+      <div class="p-3 border-bottom fw-semibold">Recent Transactions</div>
+      <table class="table mb-0 align-middle small">
+        <thead><tr><th>Date</th><th>Ref</th><th>Type</th><th>Location</th><th>Qty</th><th>Balance</th><th>By</th></tr></thead>
+        <tbody>
+        {% for t in transactions %}
+        <tr>
+          <td>{{ t.created_at|date:"M d, Y H:i" }}</td><td>{{ t.reference_number }}</td>
+          <td><span class="badge badge-soft-info">{{ t.get_transaction_type_display }}</span></td>
+          <td>{{ t.location }}</td><td>{{ t.quantity }}</td><td>{{ t.balance_after }}</td><td>{{ t.performed_by }}</td>
+        </tr>
+        {% empty %}<tr><td colspan="7" class="text-center text-muted py-3">No transactions yet.</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="qr-box">
+      <div class="fw-semibold mb-2">Product QR Code</div>
+      <img src="{% url 'core:qr_image' product.qr_token %}" width="180" height="180" alt="QR">
+      <div class="small text-muted mt-2">SKU: {{ product.sku }}</div>
+      <a href="{% url 'core:qr_image' product.qr_token %}" download class="btn btn-sm btn-outline-primary mt-2"><i class="fa-solid fa-download me-1"></i>Download Label</a>
+    </div>
+    {% if product.image %}<div class="wh-card p-3 mt-3 text-center"><img src="{{ product.image.url }}" class="img-fluid rounded"></div>{% endif %}
+    <div class="wh-card p-3 mt-3">
+      <div class="fw-semibold mb-2">Recent Batches</div>
+      {% for b in batches %}<div class="small border-bottom py-1">{{ b.batch_number }} {% if b.expiration_date %}<span class="text-muted">exp. {{ b.expiration_date }}</span>{% endif %}</div>{% empty %}<div class="text-muted small">No batches.</div>{% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

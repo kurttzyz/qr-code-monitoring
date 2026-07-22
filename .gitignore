@@ -1,0 +1,10 @@
+venv/
+__pycache__/
+*.pyc
+db.sqlite3
+staticfiles/
+media/*
+!media/.gitkeep
+.env
+DBASE SUPPLIES REQUEST & INVENTORY 2025 COPY.xlsx
+ILIGAN NAP-GRDS Monitoring_Batching_Labeling System 2025.xlsx

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ asset.asset_code }}{% endblock %}
+{% block page_heading %}Asset Detail{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="wh-card p-4">
+      <div class="d-flex justify-content-between">
+        <div>
+          <h5 class="mb-1">{{ asset.asset_code }} &middot; {{ asset.product }}</h5>
+          <div class="text-muted small">Serial: {{ asset.serial_number|default:"—" }}</div>
+        </div>
+        <a href="{% url 'core:asset_edit' asset.pk %}" class="btn btn-sm btn-outline-primary align-self-start"><i class="fa-solid fa-pen me-1"></i>Edit</a>
+      </div>
+      <hr>
+      <dl class="row mb-0">
+        <dt class="col-sm-4">Location</dt><dd class="col-sm-8">{{ asset.location }}</dd>
+        <dt class="col-sm-4">Condition</dt><dd class="col-sm-8">{{ asset.get_condition_display }}</dd>
+        <dt class="col-sm-4">Status</dt><dd class="col-sm-8">{{ asset.get_status_display }}</dd>
+        <dt class="col-sm-4">Assigned To</dt><dd class="col-sm-8">{{ asset.assigned_to|default:"—" }}</dd>
+        <dt class="col-sm-4">Notes</dt><dd class="col-sm-8">{{ asset.notes|default:"—" }}</dd>
+      </dl>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="qr-box">
+      <div class="fw-semibold mb-2">Asset QR Code</div>
+      <img src="{% url 'core:qr_image' asset.qr_token %}" width="180" height="180" alt="QR">
+      <a href="{% url 'core:qr_image' asset.qr_token %}" download class="btn btn-sm btn-outline-primary mt-2 d-block"><i class="fa-solid fa-download me-1"></i>Download Label</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

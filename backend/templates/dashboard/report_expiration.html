@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Expiration Report{% endblock %}
+{% block page_heading %}Expiration Report{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-end mb-3"><a href="?export=csv" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-file-csv me-1"></i> Export CSV</a></div>
+<div class="wh-card p-0">
+<table class="table table-hover mb-0 align-middle small">
+<thead><tr><th>SKU</th><th>Product</th><th>Batch</th><th>Expiration Date</th><th>Status</th></tr></thead>
+<tbody>
+{% for b in batches %}
+<tr><td>{{ b.product.sku }}</td><td>{{ b.product.name }}</td><td>{{ b.batch_number }}</td><td>{{ b.expiration_date }}</td>
+<td>{% if b.expiration_date < today %}<span class="badge badge-soft-danger">Expired</span>{% elif b.is_expiring_soon %}<span class="badge badge-soft-warning">Expiring Soon</span>{% else %}<span class="badge badge-soft-success">OK</span>{% endif %}</td></tr>
+{% empty %}<tr><td colspan="5" class="text-center text-muted py-4">No batches with expiration dates.</td></tr>{% endfor %}
+</tbody>
+</table>
+</div>
+{% endblock %}

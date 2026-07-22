@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Products{% endblock %}
+{% block page_heading %}Products{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5 class="mb-0">Products</h5>
+  {% if not user.is_read_only %}<a href="{% url 'core:product_add' %}" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i> Add Product</a>{% endif %}
+</div>
+<form class="mb-3 d-flex gap-2" method="get">
+  <input type="text" name="q" value="{{ request.GET.q }}" class="form-control form-control-sm" style="max-width:220px" placeholder="Search SKU/name">
+  <select name="category" class="form-select form-select-sm" style="max-width:200px">
+    <option value="">All Categories</option>
+    {% for c in categories %}<option value="{{ c.pk }}" {% if request.GET.category == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+  </select>
+  <button class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-search"></i></button>
+</form>
+<div class="wh-card p-0">
+<table class="table table-hover mb-0 align-middle">
+<thead><tr><th>SKU</th><th>Name</th><th>Category</th><th>Tracking</th><th>Stock</th><th>Reorder Level</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+<tbody>
+{% for p in products %}
+<tr>
+  <td><a href="{% url 'core:product_detail' p.pk %}">{{ p.sku }}</a></td>
+  <td>{{ p.name }}</td>
+  <td>{{ p.category }}</td>
+  <td><span class="badge badge-soft-info">{{ p.get_tracking_type_display }}</span></td>
+  <td>
+    {{ p.total_stock }} {{ p.unit.abbreviation }}
+    {% if p.is_out_of_stock %}<span class="badge badge-soft-danger ms-1">Out</span>
+    {% elif p.is_low_stock %}<span class="badge badge-soft-warning ms-1">Low</span>{% endif %}
+  </td>
+  <td>{{ p.reorder_level }}</td>
+  <td>{% if p.is_active %}<span class="badge badge-soft-success">Active</span>{% else %}<span class="badge badge-soft-secondary">Inactive</span>{% endif %}</td>
+  <td class="text-end">
+    <a href="{% url 'core:product_detail' p.pk %}" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-eye"></i></a>
+    {% if not user.is_read_only %}<a href="{% url 'core:product_edit' p.pk %}" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-pen"></i></a>{% endif %}
+  </td>
+</tr>
+{% empty %}<tr><td colspan="8" class="text-center text-muted py-4">No products yet.</td></tr>{% endfor %}
+</tbody>
+</table>
+</div>
+{% include "core/_pagination.html" %}
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Locations{% endblock %}
+{% block page_heading %}Warehouse Locations{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5 class="mb-0">Warehouse Locations</h5>
+  {% if not user.is_read_only %}<a href="{% url 'core:location_add' %}" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i> Add Location</a>{% endif %}
+</div>
+<form class="mb-3 d-flex gap-2" method="get">
+  <input type="text" name="q" value="{{ request.GET.q }}" class="form-control form-control-sm" style="max-width:220px" placeholder="Search code/name">
+  <select name="warehouse" class="form-select form-select-sm" style="max-width:220px">
+    <option value="">All Warehouses</option>
+    {% for w in warehouses %}<option value="{{ w.pk }}" {% if request.GET.warehouse == w.pk|stringformat:"s" %}selected{% endif %}>{{ w.name }}</option>{% endfor %}
+  </select>
+  <button class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-search"></i></button>
+</form>
+<div class="wh-card p-0">
+<table class="table table-hover mb-0 align-middle">
+<thead><tr><th>Code</th><th>Name</th><th>Warehouse</th><th>Type</th><th>Parent</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+<tbody>
+{% for loc in locations %}
+<tr>
+  <td><a href="{% url 'core:location_detail' loc.pk %}">{{ loc.code }}</a></td>
+  <td>{{ loc.name }}</td>
+  <td>{{ loc.warehouse }}</td>
+  <td><span class="badge badge-soft-info">{{ loc.get_location_type_display }}</span></td>
+  <td>{{ loc.parent|default:"—" }}</td>
+  <td>{% if loc.is_active %}<span class="badge badge-soft-success">Active</span>{% else %}<span class="badge badge-soft-secondary">Inactive</span>{% endif %}</td>
+  <td class="text-end">
+    <a href="{% url 'core:location_detail' loc.pk %}" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-eye"></i></a>
+    {% if not user.is_read_only %}<a href="{% url 'core:location_edit' loc.pk %}" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-pen"></i></a>{% endif %}
+  </td>
+</tr>
+{% empty %}<tr><td colspan="7" class="text-center text-muted py-4">No locations yet.</td></tr>{% endfor %}
+</tbody>
+</table>
+</div>
+{% include "core/_pagination.html" %}
+{% endblock %}

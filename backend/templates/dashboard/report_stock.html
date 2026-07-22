@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Current Stock Report{% endblock %}
+{% block page_heading %}Current Stock Report{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <form class="d-flex gap-2" method="get">
+    <select name="warehouse" class="form-select form-select-sm">
+      <option value="">All Warehouses</option>
+      {% for w in warehouses %}<option value="{{ w.pk }}" {% if request.GET.warehouse == w.pk|stringformat:"s" %}selected{% endif %}>{{ w.name }}</option>{% endfor %}
+    </select>
+    <button class="btn btn-sm btn-outline-secondary">Filter</button>
+  </form>
+  <a href="?{{ request.GET.urlencode }}&export=csv" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-file-csv me-1"></i> Export CSV</a>
+</div>
+<div class="wh-card p-0">
+<table class="table table-hover mb-0 align-middle small">
+<thead><tr><th>SKU</th><th>Product</th><th>Batch</th><th>Location</th><th>Quantity</th></tr></thead>
+<tbody>
+{% for b in balances %}
+<tr><td>{{ b.product.sku }}</td><td>{{ b.product.name }}</td><td>{{ b.batch|default:"—" }}</td><td>{{ b.location }}</td><td>{{ b.quantity }}</td></tr>
+{% empty %}<tr><td colspan="5" class="text-center text-muted py-4">No stock records.</td></tr>{% endfor %}
+</tbody>
+</table>
+</div>
+{% endblock %}

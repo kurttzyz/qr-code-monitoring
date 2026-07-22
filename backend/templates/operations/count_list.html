@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load core_extras %}
+{% block title %}Inventory Counts{% endblock %}
+{% block page_heading %}Inventory Counts{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5 class="mb-0">Inventory Counts</h5>
+  {% if user.role == 'admin' or user.role == 'manager' %}<a href="{% url 'operations:count_add' %}" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i> New Count Session</a>{% endif %}
+</div>
+<div class="wh-card p-0">
+<table class="table table-hover mb-0 align-middle">
+<thead><tr><th>Reference</th><th>Warehouse</th><th>Location</th><th>Status</th><th>Created By</th><th>Date</th></tr></thead>
+<tbody>
+{% for c in counts %}
+<tr style="cursor:pointer" onclick="location.href='{% url 'operations:count_detail' c.pk %}'">
+  <td>{{ c.reference_number }}</td><td>{{ c.warehouse }}</td><td>{{ c.location|default:"All" }}</td>
+  <td><span class="badge badge-soft-{{ c.status|status_badge }}">{{ c.get_status_display }}</span></td>
+  <td>{{ c.created_by }}</td><td>{{ c.created_at|date:"M d, Y" }}</td>
+</tr>
+{% empty %}<tr><td colspan="6" class="text-center text-muted py-4">No count sessions yet.</td></tr>{% endfor %}
+</tbody>
+</table>
+</div>
+{% include "core/_pagination.html" %}
+{% endblock %}

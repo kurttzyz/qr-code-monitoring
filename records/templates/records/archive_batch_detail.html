@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}{{ batch.batch_no }}{% endblock %}
+{% block page_heading %}Archive Batch Detail{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h4 class="fw-bold mb-1">{{ batch.batch_no }}</h4>
+    {% if batch.batch_type == "archiving" %}
+      <span class="badge badge-soft-info">Archiving</span>
+    {% else %}
+      <span class="badge badge-soft-warning">Disposal</span>
+    {% endif %}
+  </div>
+  <a href="{% url 'records:archive_batch_list' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="fa-solid fa-arrow-left me-1"></i> Back to list
+  </a>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-body">
+        <table class="table table-borderless table-sm mb-0">
+          <tr><th class="text-muted" style="width:220px;">Reference No.</th><td>{{ batch.reference_no }}</td></tr>
+          <tr><th class="text-muted">Box No.</th><td>{{ batch.box_number }}</td></tr>
+          <tr><th class="text-muted">Date</th><td>{{ batch.batch_date }}</td></tr>
+          <tr>
+            <th class="text-muted">GRDS Item</th>
+            <td>
+              {% if batch.grds_item %}
+                <a href="{% url 'records:grds_item_detail' batch.grds_item.pk %}">{{ batch.grds_item.item_no }} — {{ batch.grds_item.records_series_title }}</a>
+              {% else %}
+                {{ batch.grds_item_no_raw|default:"—" }}
+              {% endif %}
+            </td>
+          </tr>
+          <tr><th class="text-muted">Section</th><td>{{ batch.section|default:"—" }}</td></tr>
+          <tr><th class="text-muted">Description</th><td>{{ batch.description }}</td></tr>
+          <tr><th class="text-muted">Period Covered</th><td>{{ batch.period_covered|default:"—" }}</td></tr>
+          <tr><th class="text-muted">Latest Year</th><td>{{ batch.latest_year|default:"—" }}</td></tr>
+          <tr><th class="text-muted">Years as of Count</th><td>{{ batch.years_as_of_count|default:"—" }}</td></tr>
+          <tr><th class="text-muted">Retention Period (yrs)</th><td>{{ batch.retention_period_years|default:"—" }}</td></tr>
+          <tr><th class="text-muted">Disposal Status Value</th><td>{{ batch.disposal_status_value|default:"—" }}</td></tr>
+          <tr><th class="text-muted">Scanning Status</th><td>{{ batch.get_scanning_status_display|default:"—" }}</td></tr>
+          <tr><th class="text-muted">Location</th><td>{{ batch.location|default:"—" }}</td></tr>
+          <tr><th class="text-muted">Remarks</th><td>{{ batch.remarks|default:"—" }}</td></tr>
+        </table>
+      </div>
+    </div>
+
+    {% if batch.linked_batch %}
+    <div class="card mt-3">
+      <div class="card-body d-flex align-items-center justify-content-between">
+        <div>
+          <div class="text-muted small text-uppercase">Linked batch (other side of its lifecycle)</div>
+          <div class="fw-semibold">{{ batch.linked_batch.batch_no }} ({{ batch.linked_batch.get_batch_type_display }})</div>
+        </div>
+        <a href="{% url 'records:archive_batch_detail' batch.linked_batch.pk %}" class="btn btn-sm btn-primary">
+          View <i class="fa-solid fa-arrow-right ms-1"></i>
+        </a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-body text-center">
+        <img src="{% url 'core:qr_image' batch.qr_token %}" width="180" height="180" alt="QR code for {{ batch.batch_no }}" class="img-fluid mb-2">
+        <p class="text-muted small mb-3">Scan to view this batch</p>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'core:qr_image' batch.qr_token %}" download="{{ batch.batch_no }}.png">
+          <i class="fa-solid fa-download me-1"></i> Download QR
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

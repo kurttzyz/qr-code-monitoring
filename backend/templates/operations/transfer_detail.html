@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load core_extras %}
+{% block title %}{{ transfer.reference_number }}{% endblock %}
+{% block page_heading %}Transfer Detail{% endblock %}
+{% block content %}
+<div class="wh-card p-4 mb-4">
+  <div class="d-flex justify-content-between align-items-start">
+    <div>
+      <h5>{{ transfer.reference_number }} <span class="badge badge-soft-{{ transfer.status|status_badge }}">{{ transfer.get_status_display }}</span></h5>
+      <div class="text-muted small">{{ transfer.source_location }} <i class="fa-solid fa-arrow-right mx-1"></i> {{ transfer.destination_location }}</div>
+      <div class="text-muted small">Requested by {{ transfer.requested_by }} on {{ transfer.created_at|date:"M d, Y H:i" }}{% if transfer.approved_by %} &middot; Approved by {{ transfer.approved_by }}{% endif %}</div>
+    </div>
+    <div>
+      {% if transfer.status == 'pending' and user.can_approve %}
+      <form method="post" action="{% url 'operations:transfer_approve' transfer.pk %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-success">Approve</button></form>
+      {% endif %}
+      {% if transfer.status == 'approved' and not user.is_read_only %}
+      <form method="post" action="{% url 'operations:transfer_process' transfer.pk %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-primary">Process Transfer</button></form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<div class="wh-card p-0">
+<table class="table mb-0 align-middle">
+<thead><tr><th>Product</th><th>Batch</th><th>Quantity</th><th>Processed?</th></tr></thead>
+<tbody>
+{% for i in transfer.items.all %}
+<tr><td>{{ i.product }}</td><td>{{ i.batch|default:"—" }}</td><td>{{ i.quantity }}</td>
+<td>{% if i.is_processed %}<span class="badge badge-soft-success">Yes</span>{% else %}<span class="badge badge-soft-secondary">No</span>{% endif %}</td></tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% endblock %}

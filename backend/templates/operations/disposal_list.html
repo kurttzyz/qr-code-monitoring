@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Disposals{% endblock %}
+{% block page_heading %}Disposals{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5 class="mb-0">Disposals</h5>
+  {% if user.can_approve %}<a href="{% url 'operations:disposal_add' %}" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i> Record Disposal</a>{% endif %}
+</div>
+<div class="wh-card p-0">
+<table class="table table-hover mb-0 align-middle">
+<thead><tr><th>Reference</th><th>Product</th><th>Quantity</th><th>Method</th><th>Approved By</th><th>Date</th></tr></thead>
+<tbody>
+{% for d in disposals %}
+<tr>
+  <td>{{ d.reference_number }}</td><td>{{ d.product }}</td><td>{{ d.quantity }}</td>
+  <td><span class="badge badge-soft-info">{{ d.get_method_display }}</span></td>
+  <td>{{ d.approved_by }}</td><td>{{ d.created_at|date:"M d, Y" }}</td>
+</tr>
+{% empty %}<tr><td colspan="6" class="text-center text-muted py-4">No disposals recorded yet.</td></tr>{% endfor %}
+</tbody>
+</table>
+</div>
+{% include "core/_pagination.html" %}
+{% endblock %}
