@@ -39,23 +39,16 @@ function goToToken(){
 try {
   const html5QrCode = new Html5Qrcode("reader");
 
-  function startWithFacingMode(mode) {
-    return html5QrCode.start(
-      { facingMode: mode },
-      { fps: 10, qrbox: 220 },
-      goToUrl
-    );
-  }
-
-  // Prefer the rear/back camera on phones & tablets.
-  startWithFacingMode("environment").catch(() => {
-    // Fallback: pick a camera by id, favoring one labeled as rear-facing.
+  html5QrCode.start(
+    { facingMode: "environment" },   // rear camera by default
+    { fps: 10, qrbox: 220 },
+    goToUrl
+  ).catch(() => {
+    // Device/browser rejected the constraint outright (rare) — fall back
+    // to whatever camera is available so scanning still works.
     Html5Qrcode.getCameras().then(cameras => {
       if (cameras && cameras.length) {
-        console.log("Available cameras:", cameras.map(c => c.label));
-        const rear = cameras.find(c => /back|rear|environment/i.test(c.label));
-        const chosen = rear ? rear.id : cameras[cameras.length - 1].id;
-        html5QrCode.start(chosen, { fps: 10, qrbox: 220 }, goToUrl).catch(() => {
+        html5QrCode.start(cameras[0].id, { fps: 10, qrbox: 220 }, goToUrl).catch(() => {
           document.getElementById('scan-result').innerHTML = '<div class="text-muted small">Camera unavailable. Use manual entry below.</div>';
         });
       } else {
