@@ -38,14 +38,33 @@ function goToToken(){
 }
 try {
   const html5QrCode = new Html5Qrcode("reader");
-  Html5Qrcode.getCameras().then(cameras => {
-    if (cameras && cameras.length) {
-      html5QrCode.start(cameras[0].id, { fps: 10, qrbox: 220 }, goToUrl);
-    } else {
-      document.getElementById('scan-result').innerHTML = '<div class="text-muted small">No camera found. Use manual entry below.</div>';
-    }
-  }).catch(() => {
-    document.getElementById('scan-result').innerHTML = '<div class="text-muted small">Camera unavailable. Use manual entry below.</div>';
+
+  function startWithFacingMode(mode) {
+    return html5QrCode.start(
+      { facingMode: mode },
+      { fps: 10, qrbox: 220 },
+      goToUrl
+    );
+  }
+
+  // Prefer the rear/back camera on phones & tablets.
+  startWithFacingMode({ ideal: "environment" }).catch(() => {
+    // Fallback for devices/browsers that reject facingMode constraints
+    // (e.g. some desktop webcams) — pick a camera by id instead, favoring
+    // one whose label suggests it's rear-facing.
+    Html5Qrcode.getCameras().then(cameras => {
+      if (cameras && cameras.length) {
+        const rear = cameras.find(c => /back|rear|environment/i.test(c.label));
+        const chosen = rear ? rear.id : cameras[cameras.length - 1].id;
+        html5QrCode.start(chosen, { fps: 10, qrbox: 220 }, goToUrl).catch(() => {
+          document.getElementById('scan-result').innerHTML = '<div class="text-muted small">Camera unavailable. Use manual entry below.</div>';
+        });
+      } else {
+        document.getElementById('scan-result').innerHTML = '<div class="text-muted small">No camera found. Use manual entry below.</div>';
+      }
+    }).catch(() => {
+      document.getElementById('scan-result').innerHTML = '<div class="text-muted small">Camera unavailable. Use manual entry below.</div>';
+    });
   });
 } catch(e) {}
 </script>
