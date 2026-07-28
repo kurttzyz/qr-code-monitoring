@@ -18,6 +18,23 @@ from django.views.generic import ListView, DetailView
 from records.models import ArchiveBatch, GRDSItem, DisposalRequest  # noqa
 
 
+# records/views.py
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+
+
+@login_required
+def archive_batch_update_status(request, pk):
+    batch = get_object_or_404(ArchiveBatch, pk=pk)
+    if request.method == 'POST':
+        batch.location = request.POST.get('location', '')
+        batch.remarks = request.POST.get('remarks', '')
+        batch.save(update_fields=['location', 'remarks', 'updated_at'])
+        messages.success(request, 'Batch updated.')
+    return redirect('records:archive_batch_detail', pk=batch.pk)
+
+
 # ----------------------------------------------------------------------
 # Archive Batches (the main "Products"-equivalent screen)
 # ----------------------------------------------------------------------

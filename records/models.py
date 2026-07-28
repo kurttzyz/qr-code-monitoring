@@ -107,6 +107,7 @@ class ArchiveBatch(TimeStampedModel):
 
     class BatchType(models.TextChoices):
         ARCHIVING = 'archiving', 'Archiving'
+        # NAPDISPOSAL = 'napdisposal', 'NAP Disposal'
         DISPOSAL = 'disposal', 'Disposal'
 
     class ScanningStatus(models.TextChoices):

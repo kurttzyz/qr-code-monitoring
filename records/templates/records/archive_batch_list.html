@@ -34,13 +34,12 @@
       <thead>
         <tr class="text-uppercase small text-muted">
           <th>Batch No</th>
-          <th>Type</th>
+          <th>Status</th>
           <th>Reference</th>
           <th>Section</th>
           <th>Description</th>
           <th>Date</th>
-          <th>Status</th>
-          <th class="text-center">QR</th>
+         <th class="text-center">QR</th>
         </tr>
       </thead>
       <tbody>
@@ -58,13 +57,13 @@
           <td>{{ batch.section|default:"—" }}</td>
           <td>{{ batch.description }}</td>
           <td>{{ batch.batch_date }}</td>
-          <td>
+          {% comment %} <td>
             {% if batch.is_eligible_for_disposal %}
               <span class="badge badge-soft-danger">Eligible for disposal</span>
             {% else %}
               <span class="badge badge-soft-success">Retained</span>
             {% endif %}
-          </td>
+          </td> {% endcomment %}
           <td class="text-center"><img src="{% url 'core:qr_image' batch.qr_token %}" width="36" height="36" alt="QR"></td>
         </tr>
         {% empty %}

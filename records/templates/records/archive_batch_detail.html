@@ -8,9 +8,9 @@
   <div>
     <h4 class="fw-bold mb-1">{{ batch.batch_no }}</h4>
     {% if batch.batch_type == "archiving" %}
-      <span class="badge badge-soft-info">Archiving</span>
+      <span class="badge badge-soft-info">ARCHIVED</span>
     {% else %}
-      <span class="badge badge-soft-warning">Disposal</span>
+      <span class="badge badge-soft-warning">FOR NAPDISPOSAL</span>
     {% endif %}
   </div>
   <a href="{% url 'records:archive_batch_list' %}" class="btn btn-sm btn-outline-secondary">
@@ -22,40 +22,69 @@
   <div class="col-lg-8">
     <div class="card">
       <div class="card-body">
-        <table class="table table-borderless table-sm mb-0">
-          <tr><th class="text-muted" style="width:220px;">Reference No.</th><td>{{ batch.reference_no }}</td></tr>
-          <tr><th class="text-muted">Box No.</th><td>{{ batch.box_number }}</td></tr>
-          <tr><th class="text-muted">Date</th><td>{{ batch.batch_date }}</td></tr>
-          <tr>
-            <th class="text-muted">GRDS Item</th>
+        <form method="post" action="{% url 'records:archive_batch_update_status' batch.pk %}">
+          {% csrf_token %}
+          <table class="table table-borderless table-sm mb-0">
+            <tr><th class="text-muted" style="width:220px;">Reference No.</th><td>{{ batch.reference_no }}</td></tr>
+            <tr><th class="text-muted">Box No.</th><td>{{ batch.box_number }}</td></tr>
+            <tr><th class="text-muted">Date</th><td>{{ batch.batch_date }}</td></tr>
+            <tr>
+              <th class="text-muted">GRDS Item</th>
+              <td>
+                {% if batch.grds_item %}
+                  <a href="{% url 'records:grds_item_detail' batch.grds_item.pk %}">{{ batch.grds_item.item_no }} — {{ batch.grds_item.records_series_title }}</a>
+                {% else %}
+                  {{ batch.grds_item_no_raw|default:"—" }}
+                {% endif %}
+              </td>
+            </tr>
+            <tr><th class="text-muted">Section</th><td>{{ batch.section|default:"—" }}</td></tr>
+            <tr><th class="text-muted">Description</th><td>{{ batch.description }}</td></tr>
+            <tr><th class="text-muted">Period Covered</th><td>{{ batch.period_covered|default:"—" }}</td></tr>
+            <tr><th class="text-muted">Latest Year</th><td>{{ batch.latest_year|default:"—" }}</td></tr>
+            <tr><th class="text-muted">Years as of Count</th><td>{{ batch.years_as_of_count|default:"—" }}</td></tr>
+            <tr><th class="text-muted">Retention Period (yrs)</th><td>{{ batch.retention_period_years|default:"—" }}</td></tr>
+           <tr>
+            <th class="text-muted">Disposal Status Value</th>
             <td>
-              {% if batch.grds_item %}
-                <a href="{% url 'records:grds_item_detail' batch.grds_item.pk %}">{{ batch.grds_item.item_no }} — {{ batch.grds_item.records_series_title }}</a>
+              {% if batch.disposal_status_value is not None %}
+               
+                {% if batch.disposal_status_value < 0 %}
+                  <span class="badge badge-soft-warning ms-2">FOR NAPDISPOSAL</span>
+                {% endif %}
               {% else %}
-                {{ batch.grds_item_no_raw|default:"—" }}
+                —
               {% endif %}
             </td>
           </tr>
-          <tr><th class="text-muted">Section</th><td>{{ batch.section|default:"—" }}</td></tr>
-          <tr><th class="text-muted">Description</th><td>{{ batch.description }}</td></tr>
-          <tr><th class="text-muted">Period Covered</th><td>{{ batch.period_covered|default:"—" }}</td></tr>
-          <tr><th class="text-muted">Latest Year</th><td>{{ batch.latest_year|default:"—" }}</td></tr>
-          <tr><th class="text-muted">Years as of Count</th><td>{{ batch.years_as_of_count|default:"—" }}</td></tr>
-          <tr><th class="text-muted">Retention Period (yrs)</th><td>{{ batch.retention_period_years|default:"—" }}</td></tr>
-          <tr><th class="text-muted">Disposal Status Value</th><td>{{ batch.disposal_status_value|default:"—" }}</td></tr>
-          <tr><th class="text-muted">Scanning Status</th><td>{{ batch.get_scanning_status_display|default:"—" }}</td></tr>
-          <tr><th class="text-muted">Location</th><td>{{ batch.get_location_display|default:"—" }}</td></tr>
-          <tr>
-        <th class="text-muted">Remarks</th>
-        <td>
-          {% if batch.remarks %}
-            <div class="border rounded p-2 bg-light">{{ batch.remarks|linebreaksbr }}</div>
-          {% else %}
-            —
-          {% endif %}
-        </td>
-      </tr>
-        </table>
+            {% comment %} <tr><th class="text-muted">Scanning Status</th><td>{{ batch.get_scanning_status_display|default:"—" }}</td></tr> {% endcomment %}
+            <tr>
+              <th class="text-muted">Location</th>
+              <td>
+                <select name="location" class="form-select form-select-sm" style="max-width:280px;">
+                  <option value="" {% if not batch.location %}selected{% endif %}>—</option>
+                  {% for value, label in batch.LocationChoices.choices %}
+                    <option value="{{ value }}" {% if batch.location == value %}selected{% endif %}>
+                      {{ label }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <th class="text-muted">Remarks</th>
+              <td>
+                <textarea name="remarks" class="form-control form-control-sm" rows="3"
+                          placeholder="Add a comment...">{{ batch.remarks }}</textarea>
+              </td>
+            </tr>
+          </table>
+          <div class="text-end mt-2">
+            <button type="submit" class="btn btn-sm btn-primary">
+              <i class="fa-solid fa-save me-1"></i> Save
+            </button>
+          </div>
+        </form>
       </div>
     </div>
 

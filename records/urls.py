@@ -37,4 +37,6 @@ urlpatterns = [
 
     path('disposal-requests/', views.DisposalRequestListView.as_view(), name='disposal_request_list'),
     path('disposal-requests/<int:pk>/', views.DisposalRequestDetailView.as_view(), name='disposal_request_detail'),
+    # records/urls.py
+    path('batches/<int:pk>/update-status/', views.archive_batch_update_status, name='archive_batch_update_status'),
 ]
