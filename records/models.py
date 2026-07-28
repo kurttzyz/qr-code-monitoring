@@ -114,6 +114,13 @@ class ArchiveBatch(TimeStampedModel):
         UNSCANNED = 'unscanned', 'Unscanned'
         NOT_APPLICABLE = 'not_applicable', 'Not Applicable'
 
+    class LocationChoices(models.TextChoices):
+        RIMS_CDO = 'rims_cdo', 'RIMS CDO'
+        ARCHIVE_ROOM = 'archive_room', 'Archive Room'
+        BRANCH_STOCKROOM = 'branch_stockroom', 'Branch Stockroom'
+        OFFSITE_STORAGE = 'offsite_storage', 'Offsite Storage'
+        DISPOSED_THRU_NAP = 'disposed_thru_nap', 'Disposed thru NAP'
+
     batch_type = models.CharField(max_length=10, choices=BatchType.choices)
     qr_token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
 
@@ -153,9 +160,10 @@ class ArchiveBatch(TimeStampedModel):
                   "retention_period_years. Zero or positive generally means it's eligible.")
 
     scanning_status = models.CharField(max_length=20, choices=ScanningStatus.choices, blank=True)
+    
     location = models.CharField(
-        max_length=150, blank=True,
-        help_text="Current whereabouts/disposition, e.g. 'DISPOSED THRU NAP', 'RIMS CDO'.")
+        max_length=150, blank=True, choices=LocationChoices.choices,
+        help_text="Current whereabouts/disposition.")
 
     linked_batch = models.ForeignKey(
         'self', on_delete=models.SET_NULL, null=True, blank=True,

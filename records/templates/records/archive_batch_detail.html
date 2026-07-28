@@ -44,8 +44,17 @@
           <tr><th class="text-muted">Retention Period (yrs)</th><td>{{ batch.retention_period_years|default:"—" }}</td></tr>
           <tr><th class="text-muted">Disposal Status Value</th><td>{{ batch.disposal_status_value|default:"—" }}</td></tr>
           <tr><th class="text-muted">Scanning Status</th><td>{{ batch.get_scanning_status_display|default:"—" }}</td></tr>
-          <tr><th class="text-muted">Location</th><td>{{ batch.location|default:"—" }}</td></tr>
-          <tr><th class="text-muted">Remarks</th><td>{{ batch.remarks|default:"—" }}</td></tr>
+          <tr><th class="text-muted">Location</th><td>{{ batch.get_location_display|default:"—" }}</td></tr>
+          <tr>
+        <th class="text-muted">Remarks</th>
+        <td>
+          {% if batch.remarks %}
+            <div class="border rounded p-2 bg-light">{{ batch.remarks|linebreaksbr }}</div>
+          {% else %}
+            —
+          {% endif %}
+        </td>
+      </tr>
         </table>
       </div>
     </div>
