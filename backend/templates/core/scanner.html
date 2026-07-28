@@ -48,12 +48,11 @@ try {
   }
 
   // Prefer the rear/back camera on phones & tablets.
-  startWithFacingMode({ ideal: "environment" }).catch(() => {
-    // Fallback for devices/browsers that reject facingMode constraints
-    // (e.g. some desktop webcams) — pick a camera by id instead, favoring
-    // one whose label suggests it's rear-facing.
+  startWithFacingMode("environment").catch(() => {
+    // Fallback: pick a camera by id, favoring one labeled as rear-facing.
     Html5Qrcode.getCameras().then(cameras => {
       if (cameras && cameras.length) {
+        console.log("Available cameras:", cameras.map(c => c.label));
         const rear = cameras.find(c => /back|rear|environment/i.test(c.label));
         const chosen = rear ? rear.id : cameras[cameras.length - 1].id;
         html5QrCode.start(chosen, { fps: 10, qrbox: 220 }, goToUrl).catch(() => {
